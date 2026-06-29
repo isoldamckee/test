@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hearthstone Coffee</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --espresso: #1C0F0A;
+      --oat: #F5EDD8;
+      --copper: #B8703A;
+      --sage: #8A9E7E;
+      --cream: #FDF6EC;
+      --mid: #6B4226;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--espresso);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      transition: background 0.4s, padding 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(28, 15, 10, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 1rem 3rem;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--cream);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a {
+      color: var(--oat);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      background: var(--espresso);
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-bg-pattern {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(184,112,58,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(138,158,126,0.1) 0%, transparent 60%);
+    }
+
+    /* Grain texture */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 3rem;
+      max-width: 680px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 1.4rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 2rem; height: 1px;
+      background: var(--copper);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 1.6rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--oat);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: rgba(245, 237, 216, 0.7);
+      max-width: 420px;
+      margin-bottom: 2.6rem;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: inline-flex; gap: 1rem; flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--copper);
+      color: var(--cream);
+      border: none;
+      padding: 0.85rem 2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.25s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: #a06030; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--oat);
+      border: 1px solid rgba(245,237,216,0.35);
+      padding: 0.85rem 2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.25s, color 0.25s;
+      display: inline-block;
+    }
+    .btn-ghost:hover { border-color: var(--oat); color: #fff; }
+
+    /* Steam cup illustration */
+    .hero-cup {
+      position: absolute;
+      right: 8%;
+      bottom: 0;
+      width: min(380px, 40vw);
+      z-index: 1;
+    }
+
+    .steam-line {
+      stroke: rgba(245,237,216,0.5);
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    @keyframes steam1 {
+      0%   { transform: translateY(0) scaleX(1); opacity: 0.6; }
+      50%  { transform: translateY(-28px) scaleX(1.3); opacity: 0.3; }
+      100% { transform: translateY(-55px) scaleX(0.8); opacity: 0; }
+    }
+    @keyframes steam2 {
+      0%   { transform: translateY(0) scaleX(1); opacity: 0.5; }
+      50%  { transform: translateY(-22px) scaleX(0.8); opacity: 0.25; }
+      100% { transform: translateY(-48px) scaleX(1.2); opacity: 0; }
+    }
+    @keyframes steam3 {
+      0%   { transform: translateY(0) scaleX(1); opacity: 0.55; }
+      50%  { transform: translateY(-32px) scaleX(1.1); opacity: 0.2; }
+      100% { transform: translateY(-60px) scaleX(0.9); opacity: 0; }
+    }
+
+    .s1 { animation: steam1 2.8s ease-out infinite; }
+    .s2 { animation: steam2 2.8s ease-out infinite 0.6s; }
+    .s3 { animation: steam3 2.8s ease-out infinite 1.2s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .s1, .s2, .s3 { animation: none; }
+    }
+
+    /* ── STRIP ── */
+    .strip {
+      background: var(--copper);
+      padding: 0.9rem 3rem;
+      display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cream);
+    }
+    .strip span { opacity: 0.9; }
+    .strip span strong { font-weight: 500; opacity: 1; }
+
+    /* ── ABOUT ── */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 520px;
+    }
+
+    .about-image {
+      background: var(--espresso);
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    .about-image-fill {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #2a1208 0%, #3d1f10 40%, #1c0f0a 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Bean mosaic SVG */
+    .about-text {
+      background: var(--oat);
+      padding: 5rem 4rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 1rem;
+    }
+
+    .about-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      line-height: 1.2;
+      margin-bottom: 1.4rem;
+      color: var(--espresso);
+    }
+
+    .about-text p {
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: var(--mid);
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .stat-row {
+      display: flex; gap: 2.5rem; margin-top: 2rem;
+    }
+    .stat { border-left: 2px solid var(--copper); padding-left: 1rem; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--espresso);
+      line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--mid);
+      letter-spacing: 0.06em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── MENU ── */
+    .menu-section {
+      background: var(--cream);
+      padding: 6rem 3rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--espresso);
+      margin-bottom: 0.6rem;
+    }
+    .section-header p {
+      color: var(--mid);
+      font-size: 0.95rem;
+      font-weight: 300;
+    }
+
+    .menu-tabs {
+      display: flex; justify-content: center; gap: 0; margin-bottom: 3rem;
+      border-bottom: 1px solid rgba(28,15,10,0.12);
+    }
+    .tab-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 0.8rem 1.8rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--espresso);
+      border-bottom-color: var(--copper);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: rgba(28,15,10,0.08);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .menu-item {
+      background: var(--cream);
+      padding: 2rem;
+      display: flex; flex-direction: column;
+      transition: background 0.2s;
+    }
+    .menu-item:hover { background: var(--oat); }
+
+    .menu-item-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .menu-item h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--espresso);
+      flex: 1;
+    }
+    .menu-price {
+      font-size: 0.9rem;
+      color: var(--copper);
+      font-weight: 500;
+      margin-left: 1rem;
+      white-space: nowrap;
+    }
+    .menu-desc {
+      font-size: 0.83rem;
+      line-height: 1.6;
+      color: var(--mid);
+      font-weight: 300;
+    }
+    .menu-tag {
+      display: inline-block;
+      margin-top: 0.9rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sage);
+      border: 1px solid var(--sage);
+      padding: 0.18rem 0.55rem;
+      align-self: flex-start;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── ATMOSPHERE ── */
+    .atmosphere {
+      background: var(--espresso);
+      padding: 6rem 3rem;
+      text-align: center;
+    }
+    .atmosphere .section-label { color: var(--copper); margin-bottom: 1rem; }
+    .atmosphere h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      color: var(--cream);
+      margin-bottom: 1rem;
+    }
+    .atmosphere p {
+      color: rgba(245,237,216,0.65);
+      font-size: 0.95rem;
+      font-weight: 300;
+      max-width: 520px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+    }
+
+    .atm-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .atm-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(245,237,216,0.08);
+      padding: 2.4rem 2rem;
+      text-align: left;
+      transition: background 0.25s;
+    }
+    .atm-card:hover { background: rgba(255,255,255,0.07); }
+    .atm-icon {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    .atm-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: var(--oat);
+      margin-bottom: 0.5rem;
+    }
+    .atm-card p {
+      font-size: 0.83rem;
+      line-height: 1.65;
+      color: rgba(245,237,216,0.5);
+      margin: 0;
+      max-width: none;
+    }
+
+    /* ── VISIT ── */
+    .visit {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .visit-map {
+      background: var(--oat);
+      min-height: 420px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .visit-info {
+      background: var(--espresso);
+      padding: 5rem 4rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .visit-info .section-label { color: var(--copper); }
+    .visit-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3vw, 2.6rem);
+      color: var(--cream);
+      margin-bottom: 2rem;
+      line-height: 1.2;
+    }
+
+    .info-row {
+      display: flex; gap: 1.2rem; margin-bottom: 1.6rem; align-items: flex-start;
+    }
+    .info-icon {
+      color: var(--copper); font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0;
+    }
+    .info-text h4 {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 0.3rem;
+    }
+    .info-text p {
+      font-size: 0.92rem;
+      color: rgba(245,237,216,0.75);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #110a07;
+      padding: 2rem 3rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--oat);
+    }
+    .footer-copy {
+      font-size: 0.75rem;
+      color: rgba(245,237,216,0.35);
+      letter-spacing: 0.05em;
+    }
+    .footer-links {
+      display: flex; gap: 1.5rem; list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.75rem;
+      color: rgba(245,237,216,0.4);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--oat); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      nav.scrolled { padding: 0.9rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero-content { padding: 0 1.5rem; }
+      .hero-cup { display: none; }
+      .about, .visit { grid-template-columns: 1fr; }
+      .about-image { min-height: 280px; }
+      .about-text { padding: 3rem 1.5rem; }
+      .menu-section { padding: 4rem 1.5rem; }
+      .atmosphere { padding: 4rem 1.5rem; }
+      .atm-grid { grid-template-columns: 1fr; }
+      .visit-info { padding: 3rem 1.5rem; }
+      footer { padding: 1.5rem; flex-direction: column; text-align: center; }
+      .strip { padding: 0.8rem 1.5rem; gap: 1.5rem; font-size: 0.72rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">Hearthstone</a>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#atmosphere">About</a></li>
+    <li><a href="#visit">Visit</a></li>
+  </ul>
+  <a class="btn-primary" href="#visit" style="font-size:0.75rem;padding:0.65rem 1.4rem;">Find Us</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Est. 2009 · Dublin, Ireland</p>
+    <h1>Where every cup<br>tells a <em>story.</em></h1>
+    <p class="hero-sub">Specialty coffee roasted with care, served in a space that feels like home. Come in. Stay awhile.</p>
+    <div class="hero-cta">
+      <a href="#menu" class="btn-primary">See Our Menu</a>
+      <a href="#visit" class="btn-ghost">Get Directions</a>
+    </div>
+  </div>
+
+  <!-- Animated cup SVG -->
+  <svg class="hero-cup" viewBox="0 0 380 520" xmlns="http://www.w3.org/2000/svg">
+    <!-- Steam -->
+    <g transform="translate(145, 60)">
+      <path class="steam-line s1" d="M10,40 C10,25 25,20 20,5" />
+      <path class="steam-line s2" d="M30,45 C28,28 15,22 18,5" />
+      <path class="steam-line s3" d="M50,38 C52,22 40,18 44,2" />
+    </g>
+    <!-- Saucer -->
+    <ellipse cx="190" cy="430" rx="130" ry="18" fill="#2a1208"/>
+    <ellipse cx="190" cy="424" rx="130" ry="18" fill="#3d1f10"/>
+    <!-- Cup body -->
+    <path d="M110,220 L130,400 Q190,420 250,400 L270,220 Z" fill="#2a1208"/>
+    <path d="M112,220 L132,398 Q190,416 248,398 L268,220 Z" fill="#341509"/>
+    <!-- Cup rim -->
+    <ellipse cx="190" cy="220" rx="80" ry="14" fill="#3d1f10"/>
+    <!-- Coffee surface -->
+    <ellipse cx="190" cy="222" rx="72" ry="11" fill="#1c0f0a"/>
+    <!-- Latte art swirl -->
+    <ellipse cx="190" cy="222" rx="50" ry="7" fill="rgba(245,237,216,0.12)"/>
+    <path d="M165,222 Q190,215 215,222 Q200,228 190,225 Q178,228 165,222Z" fill="rgba(245,237,216,0.18)"/>
+    <!-- Handle -->
+    <path d="M268,270 Q310,270 310,310 Q310,350 268,350" stroke="#2a1208" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <path d="M268,270 Q305,272 305,310 Q305,348 268,350" stroke="#3d1f10" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- Subtle shine -->
+    <ellipse cx="160" cy="290" rx="8" ry="30" fill="rgba(255,255,255,0.04)" transform="rotate(-15 160 290)"/>
+  </svg>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <span>☕ <strong>Specialty Roasts</strong> — Sourced Directly</span>
+  <span>⏰ <strong>Mon–Fri</strong> 7am – 7pm</span>
+  <span>🌿 <strong>Plant Milk</strong> Always Available</span>
+  <span>📶 <strong>Free WiFi</strong> All Day</span>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="atmosphere">
+  <div class="about-image">
+    <div class="about-image-fill">
+      <svg viewBox="0 0 300 300" width="260" xmlns="http://www.w3.org/2000/svg" opacity="0.6">
+        <!-- Decorative bean pattern -->
+        <g fill="none" stroke="rgba(184,112,58,0.5)" stroke-width="1.5">
+          <ellipse cx="80" cy="80" rx="28" ry="18" transform="rotate(30 80 80)"/>
+          <line x1="80" y1="62" x2="80" y2="98" transform="rotate(30 80 80)" stroke-width="1"/>
+          <ellipse cx="180" cy="60" rx="28" ry="18" transform="rotate(-20 180 60)"/>
+          <line x1="180" y1="42" x2="180" y2="78" transform="rotate(-20 180 60)" stroke-width="1"/>
+          <ellipse cx="60" cy="180" rx="28" ry="18" transform="rotate(50 60 180)"/>
+          <line x1="60" y1="162" x2="60" y2="198" transform="rotate(50 60 180)" stroke-width="1"/>
+          <ellipse cx="200" cy="190" rx="28" ry="18" transform="rotate(-40 200 190)"/>
+          <line x1="200" y1="172" x2="200" y2="208" transform="rotate(-40 200 190)" stroke-width="1"/>
+          <ellipse cx="140" cy="145" rx="34" ry="22" transform="rotate(10 140 145)"/>
+          <line x1="140" y1="123" x2="140" y2="167" transform="rotate(10 140 145)" stroke-width="1"/>
+          <ellipse cx="240" cy="130" rx="22" ry="14" transform="rotate(-55 240 130)"/>
+          <ellipse cx="50" cy="110" rx="20" ry="13" transform="rotate(70 50 110)"/>
+          <ellipse cx="190" cy="240" rx="24" ry="16" transform="rotate(25 190 240)"/>
+          <ellipse cx="100" cy="240" rx="20" ry="13" transform="rotate(-30 100 240)"/>
+        </g>
+        <text x="150" y="158" text-anchor="middle" font-family="Playfair Display, serif" font-size="11" fill="rgba(184,112,58,0.4)" letter-spacing="3">HEARTHSTONE</letter-spacing></text>
+      </svg>
+    </div>
+  </div>
+  <div class="about-text">
+    <p class="section-label">Our Story</p>
+    <h2>Coffee as craft.<br>Community as calling.</h2>
+    <p>Hearthstone started with a secondhand La Marzocco and a conviction that great coffee changes a morning — and a neighbourhood.</p>
+    <p>We source directly from small farms across Ethiopia, Colombia, and Guatemala, roasting in-house every Thursday so every cup reaches you at its peak.</p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num">15+</div>
+        <div class="stat-lbl">Years Serving</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">8</div>
+        <div class="stat-lbl">Origin Countries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-lbl">Regulars Welcome</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="menu-section" id="menu">
+  <div class="section-header">
+    <p class="section-label">What We Pour</p>
+    <h2>The Menu</h2>
+    <p>Everything made to order, every time.</p>
+  </div>
+
+  <div class="menu-tabs">
+    <button class="tab-btn active" data-tab="espresso">Espresso</button>
+    <button class="tab-btn" data-tab="filter">Filter</button>
+    <button class="tab-btn" data-tab="food">Food</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-espresso">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Espresso</h3><span class="menu-price">€2.80</span></div>
+        <p class="menu-desc">A single origin shot pulled tight — intense, sweet, and gone too quickly.</p>
+        <span class="menu-tag">Single Origin</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Flat White</h3><span class="menu-price">€3.80</span></div>
+        <p class="menu-desc">Double ristretto with velvety micro-foam. Our most ordered drink, for good reason.</p>
+        <span class="menu-tag">Signature</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Cortado</h3><span class="menu-price">€3.50</span></div>
+        <p class="menu-desc">Equal parts espresso and warm milk. The perfect balance for those who know.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Oat Latte</h3><span class="menu-price">€4.20</span></div>
+        <p class="menu-desc">Barista oat milk steamed to a natural sweetness. Our plant-based crowd favourite.</p>
+        <span class="menu-tag">Vegan</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Long Black</h3><span class="menu-price">€3.20</span></div>
+        <p class="menu-desc">Hot water first, double espresso on top — preserving the crema the way it should be.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Seasonal Latte</h3><span class="menu-price">€4.80</span></div>
+        <p class="menu-desc">Ask us what's on today. Changes monthly with whatever inspires us.</p>
+        <span class="menu-tag">Rotating</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-filter">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Filter of the Day</h3><span class="menu-price">€3.50</span></div>
+        <p class="menu-desc">Brewed fresh every 45 minutes through a Kalita Wave. Light, clean, expressive.</p>
+        <span class="menu-tag">Daily Rotation</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Cold Brew</h3><span class="menu-price">€4.50</span></div>
+        <p class="menu-desc">20-hour steep at room temperature. Silky, low-acid, poured over ice.</p>
+        <span class="menu-tag">Slow-Steeped</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Pourover – Single Cup</h3><span class="menu-price">€5.50</span></div>
+        <p class="menu-desc">Choose your bean, choose your grind, wait five minutes. Worth it every time.</p>
+        <span class="menu-tag">Made to Order</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-food">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Almond Croissant</h3><span class="menu-price">€3.80</span></div>
+        <p class="menu-desc">Laminated twice, filled with frangipane, baked fresh each morning from our bakery partner.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Banana Bread</h3><span class="menu-price">€3.20</span></div>
+        <p class="menu-desc">Dense, moist, with dark chocolate chips. Served warm with a side of cultured butter.</p>
+        <span class="menu-tag">Vegetarian</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Seasonal Toastie</h3><span class="menu-price">€7.50</span></div>
+        <p class="menu-desc">Sourdough pressed with whatever combination we're excited about this week. Ask us.</p>
+        <span class="menu-tag">Rotating</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top"><h3>Granola Bowl</h3><span class="menu-price">€6.00</span></div>
+        <p class="menu-desc">House-toasted oat granola, Greek yoghurt, seasonal compote, and a drizzle of local honey.</p>
+        <span class="menu-tag">Vegetarian</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATMOSPHERE -->
+<section class="atmosphere">
+  <p class="section-label">Why People Stay</p>
+  <h2>A room worth<br>lingering in.</h2>
+  <p>We've thought hard about what makes a coffee shop worth returning to. It's never just the coffee.</p>
+  <div class="atm-grid">
+    <div class="atm-card">
+      <div class="atm-icon">📚</div>
+      <h3>Quiet by Design</h3>
+      <p>No piped-in chart music. A curated playlist at a volume that lets you think, read, or talk to the person across from you.</p>
+    </div>
+    <div class="atm-card">
+      <div class="atm-icon">🪴</div>
+      <h3>Light & Plants</h3>
+      <p>South-facing windows, bare timber, and 40-odd houseplants. We believe a space should feel alive.</p>
+    </div>
+    <div class="atm-card">
+      <div class="atm-icon">🔌</div>
+      <h3>Work-Friendly</h3>
+      <p>Every seat has access to a power socket. We welcome laptop workers and only ask you buy something every two hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT -->
+<section class="visit" id="visit">
+  <div class="visit-map">
+    <!-- Illustrated map placeholder -->
+    <svg viewBox="0 0 400 400" width="340" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="400" fill="#e8dfc8"/>
+      <!-- Streets -->
+      <rect x="0" y="160" width="400" height="22" fill="#d5cab0"/>
+      <rect x="0" y="260" width="400" height="18" fill="#d5cab0"/>
+      <rect x="160" y="0" width="20" height="400" fill="#d5cab0"/>
+      <rect x="270" y="0" width="16" height="400" fill="#d5cab0"/>
+      <rect x="60" y="0" width="14" height="400" fill="#d5cab0"/>
+      <!-- Blocks -->
+      <rect x="74" y="10" width="86" height="148" rx="2" fill="#cfc4a8"/>
+      <rect x="74" y="182" width="86" height="76" rx="2" fill="#cfc4a8"/>
+      <rect x="74" y="278" width="86" height="112" rx="2" fill="#cfc4a8"/>
+      <rect x="180" y="10" width="88" height="148" rx="2" fill="#cfc4a8"/>
+      <rect x="180" y="182" width="88" height="76" rx="2" fill="#c4b89a"/>
+      <rect x="180" y="278" width="88" height="112" rx="2" fill="#cfc4a8"/>
+      <rect x="286" y="10" width="110" height="148" rx="2" fill="#cfc4a8"/>
+      <rect x="286" y="182" width="110" height="76" rx="2" fill="#cfc4a8"/>
+      <!-- Park -->
+      <rect x="4" y="182" width="54" height="76" rx="4" fill="#b5c9a5"/>
+      <circle cx="18" cy="200" r="8" fill="#9ab58a"/>
+      <circle cx="40" cy="213" r="10" fill="#9ab58a"/>
+      <circle cx="25" cy="230" r="7" fill="#9ab58a"/>
+      <circle cx="48" cy="240" r="8" fill="#9ab58a"/>
+      <!-- Pin -->
+      <g transform="translate(200, 171)">
+        <circle cx="20" cy="20" r="20" fill="#B8703A"/>
+        <circle cx="20" cy="20" r="10" fill="white"/>
+        <circle cx="20" cy="20" r="5" fill="#B8703A"/>
+        <polygon points="20,40 12,28 28,28" fill="#B8703A"/>
+      </g>
+      <!-- Label -->
+      <rect x="145" y="134" width="110" height="22" rx="3" fill="white" opacity="0.9"/>
+      <text x="200" y="149" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="10" fill="#1C0F0A">Hearthstone Coffee</text>
+    </svg>
+  </div>
+
+  <div class="visit-info">
+    <p class="section-label">Find Us</p>
+    <h2>Come visit.<br>We'll have the<br>kettle on.</h2>
+
+    <div class="info-row">
+      <div class="info-icon">📍</div>
+      <div class="info-text">
+        <h4>Address</h4>
+        <p>14 Clanbrassil Street Upper<br>Dublin 8, D08 A2F1</p>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">⏰</div>
+      <div class="info-text">
+        <h4>Hours</h4>
+        <p>Monday – Friday: 7am – 7pm<br>Saturday: 8am – 6pm<br>Sunday: 9am – 5pm</p>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-icon">📞</div>
+      <div class="info-text">
+        <h4>Phone</h4>
+        <p>+353 1 234 5678</p>
+      </div>
+    </div>
+
+    <div style="margin-top:2.4rem;">
+      <a href="#" class="btn-primary">Get Directions</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Hearthstone Coffee</div>
+  <ul class="footer-links">
+    <li><a href="#">Instagram</a></li>
+    <li><a href="#">Menu</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 Hearthstone Coffee. All rights reserved.</p>
+</footer>
+
+<script>
+  // Sticky nav
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Menu tabs
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
